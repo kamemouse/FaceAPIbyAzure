@@ -80,14 +80,14 @@ result = face_client.face.identify(face_ids=face_ids, person_group_id=PERSON_GRO
 print(len(result[0].candidates))
 # Identify faces
 if not result:
-    print('No person identified in the person group for faces from {}.'.format("画像の名前"))
+    print('一致するグループは存在しませんでした')
 for person in result:
     if len(person.candidates) > 0:
         check_name = face_client.person_group_person.get(PERSON_GROUP_ID,person.candidates[0].person_id)
         print('読み込んだ画像は {} に {}% 似ています'.format(check_name.name,person.candidates[0].confidence*100))
         # print('読み込んだ画像は {} に {}% 似ています'.format(check_name.name,person.candidates[1].confidence*100)) # Get topmost confidence score
     else:
-        print('No person identified for face ID {} in {}.'.format(person.face_id, "画像の名前"))
+        print('一致したグループとの詳細情報を得ることができませんでした。')
 
 
 
