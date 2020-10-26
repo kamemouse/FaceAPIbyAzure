@@ -1,0 +1,6 @@
+azure-cognitiveservices-vision-face
+google_images_download
+six 
+semidbm
+pykakasi
+Pillow
