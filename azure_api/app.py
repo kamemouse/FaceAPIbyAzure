@@ -6,7 +6,7 @@ import io
 import sys
 import uuid
 import time
-from PIL import Image
+
 
 
 
