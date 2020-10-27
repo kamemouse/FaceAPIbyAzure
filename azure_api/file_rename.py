@@ -1,6 +1,4 @@
 import os
-# import sys
-# sys.path.append('...')
 from google_images_download import dir_check
 from pykakasi import kakasi
 
@@ -16,10 +14,11 @@ def exchange_word(text):
     result = conv.do(text)
     return result
 
-
+# Original下のフォルダ名取得
 list_all = os.listdir("Original/")
 dirs = [f for f in list_all if os.path.isdir(os.path.join("Original/", f))]
 
+# フォルダ名をローマ字化
 for i in range(len(dirs)):
     dirs[i] = "Original/" + dirs[i]
     re_dir = exchange_word(dirs[i]) 
@@ -30,6 +29,7 @@ for i in range(len(dirs)):
 
 new_dirs = os.listdir("Original")
 
+# ファイル名を取得して名前を0,1,2,3...と数値のみにする処理
 for j in range(len(new_dirs)):
     dir = "Original/" + new_dirs[j] + "/"
     files = os.listdir(dir)
