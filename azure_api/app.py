@@ -80,9 +80,7 @@ face_ids = [detect_face.face_id]
 
 # 学習モデルとテスト画像を比較して顔判別グループ内の各Personグループとの一致度合いを調べる
 result = face_client.face.identify(face_ids=face_ids, person_group_id=PERSON_GROUP_ID,max_num_of_candidates_returned=2,confidence_threshold=0.01)
-print(len(result[0].candidates))
 
-print(vars(result[0]))
 
 # 結果の表示
 if not result:
