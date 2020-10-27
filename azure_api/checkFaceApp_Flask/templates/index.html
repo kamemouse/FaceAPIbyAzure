@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>テスト</title>
+</head>
+<body>
+    <h1>あなたは石原さとみ顔？それとも佐々木のぞみ顔？</h1>
+    <form action="/check" method="POST" enctype="multipart/form-data">
+        <p>判定したい画像を入れてください</p>
+        <input type="file" name="img" value="" multiple>
+        <button>送信</button>
+    </form>
+    <h3>{{ username }}</h3>
+    <p>{{ comment }}</p>
+    <p>{{ post_time }}</p>
+</body>
+</html>

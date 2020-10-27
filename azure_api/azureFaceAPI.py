@@ -6,6 +6,7 @@ import io
 import sys
 import uuid
 import time
+import pickle
 
 
 
@@ -19,6 +20,8 @@ face_client = FaceClient(
 
 # 顔判別のグループ全体の名前を決めるためにほぼ重複しない文字列を指定する
 PERSON_GROUP_ID = str(uuid.uuid4())
+with open('person_group_id.pickle', 'wb') as id:
+  pickle.dump(PERSON_GROUP_ID , id)
 
 # 顔判別のグループを作成する
 face_client.person_group.create(person_group_id=PERSON_GROUP_ID,name=PERSON_GROUP_ID)
@@ -61,6 +64,7 @@ for image in sasakinozomi_images:
 # 顔判別グループをトレーニングして学習モデルを作成する
 face_client.person_group.train(PERSON_GROUP_ID)
 
+
 # 現在のトレーニング状態を表示
 while(True):
     training_status = face_client.person_group.get_training_status(PERSON_GROUP_ID)
@@ -76,7 +80,7 @@ file_path = "test/1.jpg"
 detect_faces = face_client.face.detect_with_stream(
         open(file_path,mode="rb"),
     )
-face_ids = [detect_face.face_id]
+face_ids = [detect_faces[0].face_id]
 
 # 学習モデルとテスト画像を比較して顔判別グループ内の各Personグループとの一致度合いを調べる
 result = face_client.face.identify(face_ids=face_ids, person_group_id=PERSON_GROUP_ID,max_num_of_candidates_returned=2,confidence_threshold=0.01)
@@ -85,17 +89,16 @@ result = face_client.face.identify(face_ids=face_ids, person_group_id=PERSON_GRO
 # 結果の表示
 if not result:
     print('一致するグループは存在しませんでした')
-for person in result:
-    if len(person.candidates) > 0:
-        # 各Personグループの名前を取得するための処理
-        check_name_high = face_client.person_group_person.get(PERSON_GROUP_ID,person.candidates[0].person_id)
-        check_name_low = face_client.person_group_person.get(PERSON_GROUP_ID,person.candidates[1].person_id)
-        # 結果の表示部分
-        print('読み込んだ画像は {} に {}% 似ています'.format(check_name_high.name,person.candidates[0].confidence*100))
-        print('読み込んだ画像は {} に {}% 似ています'.format(check_name_low.name,person.candidates[1].confidence*100)) # Get topmost confidence score
-    else:
-        print('一致したグループとの詳細情報を得ることができませんでした。')
 
+elif len(result[0].candidates) > 0:
+    # 各resultグループの名前を取得するための処理
+    check_name_high = face_client.person_group_person.get(PERSON_GROUP_ID,result[0].candidates[0].person_id)
+    check_name_low = face_client.person_group_person.get(PERSON_GROUP_ID,result[0].candidates[1].person_id)
+    # 結果の表示部分
+    print('読み込んだ画像は {} に {}% 似ています'.format(check_name_high.name,result[0].candidates[0].confidence*100))
+    print('読み込んだ画像は {} に {}% 似ています'.format(check_name_low.name,result[0].candidates[1].confidence*100)) # Get topmost confidence score
+else:
+    print('一致したグループとの詳細情報を得ることができませんでした。')
 
 
 
