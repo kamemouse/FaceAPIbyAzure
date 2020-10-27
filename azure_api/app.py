@@ -76,7 +76,7 @@ face_ids = []
 for detect_face in detect_faces:
     face_ids.append(detect_face.face_id)
 
-result = face_client.face.identify(face_ids=face_ids, person_group_id=PERSON_GROUP_ID,max_num_of_candidates_returned=2)
+result = face_client.face.identify(face_ids=face_ids, person_group_id=PERSON_GROUP_ID,maxNumOfCandidatesReturned=2)
 print(len(result[0].candidates))
 # Identify faces
 if not result:
