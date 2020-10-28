@@ -2,6 +2,7 @@
 from azure.cognitiveservices.vision.face import FaceClient
 from msrest.authentication import CognitiveServicesCredentials
 from azure.cognitiveservices.vision.face.models import TrainingStatusType, Person
+from PIL import Image, ImageDraw
 import os
 import io
 import sys
@@ -29,6 +30,15 @@ with open("../person_group_id.pickle",'rb') as id:
     PERSON_GROUP_ID = pickle.load(id) 
 
 
+def getRectangle(faceDictionary):
+    rect = faceDictionary.face_rectangle
+    left = rect.left
+    top = rect.top
+    right = left + rect.width
+    bottom = top + rect.height
+    
+    return ((left, top), (right, bottom))
+
 
 @app.route('/',methods=['GET','POST'])
 def check_img():
@@ -53,6 +63,16 @@ def check_answer():
         # 学習モデルとテスト画像を比較して顔判別グループ内の各Personグループとの一致度合いを調べる
         result = face_client.face.identify(face_ids=face_ids, person_group_id=PERSON_GROUP_ID,max_num_of_candidates_returned=2,confidence_threshold=0.01)
 
+
+        img_rect = Image.open(name)
+
+        # For each face returned use the face rectangle and draw a red box.
+        draw = ImageDraw.Draw(img_rect)
+        for face in detect_faces:
+            draw.rectangle(getRectangle(face), outline='red')
+        img_rect.save(os.path.join(DIR,img.filename))
+
+
         # 結果の表示
         if not result:
             print('一致するグループは存在しませんでした')
@@ -66,7 +86,7 @@ def check_answer():
             high_confi = '読み込んだ画像は' + check_name_high.name + 'に'+ str(result[0].candidates[0].confidence*100) + '% 似ています'
             low_confi ='読み込んだ画像は' + check_name_low.name + 'に'+ str(result[0].candidates[1].confidence*100) + '% 似ています' # Get topmost confidence score
 
-            return render_template('check.html',high_confi=high_confi,low_confi=low_confi)
+            return render_template('check.html',high_confi=high_confi,low_confi=low_confi,name=name)
             
         else:
             error = '一致したグループとの詳細情報を得ることができませんでした。'
