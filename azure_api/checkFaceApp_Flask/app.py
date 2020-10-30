@@ -29,7 +29,7 @@ face_client = FaceClient(
 with open("../person_group_id.pickle",'rb') as id:
     PERSON_GROUP_ID = pickle.load(id) 
 
-
+# 顔の範囲を座標指定する関数
 def getRectangle(faceDictionary):
     rect = faceDictionary.face_rectangle
     left = rect.left
@@ -57,16 +57,26 @@ def check_answer():
         name = os.path.join(DIR,img.filename)
         # テスト画像を読み込み学習モデルと比較出来るように画像のIDを取得する。face_client.face.detect_with_streamによって顔を識別した上で読み込んでくれる・
         detect_faces = face_client.face.detect_with_stream(
-                open(name,mode="rb"),
+                open(name,mode="rb"),recognition_model='recognition_03'
             )
-        face_ids = [detect_faces[0].face_id]
+
+        print(len(detect_faces))
+        # 単一の画像のみ読み込めるようにする
+        if len(detect_faces) > 1:
+            error = "複数の顔が存在する画像は対応していません。別の画像を用いてください"
+            return render_template('check.html',error=error,name=name)
+        elif len(detect_faces) == 1:
+            face_ids = [detect_faces[0].face_id]
+        else:
+            error = "顔が検出できませんでした。別の画像を用いてください"
+            return render_template('check.html',error=error,name=name)
+        
+        
         # 学習モデルとテスト画像を比較して顔判別グループ内の各Personグループとの一致度合いを調べる
         result = face_client.face.identify(face_ids=face_ids, person_group_id=PERSON_GROUP_ID,max_num_of_candidates_returned=2,confidence_threshold=0.01)
 
-
+        # 画像の顔部分に枠線を引くためにImageを使って読み込み、ImageDraw.Drawと関数getRectangleを使って描画する
         img_rect = Image.open(name)
-
-        # For each face returned use the face rectangle and draw a red box.
         draw = ImageDraw.Draw(img_rect)
         for face in detect_faces:
             draw.rectangle(getRectangle(face), outline='red')
@@ -75,8 +85,8 @@ def check_answer():
 
         # 結果の表示
         if not result:
-            print('一致するグループは存在しませんでした')
-            return render_template('check.html',error=error)
+            error = '一致するグループは存在しませんでした'
+            return render_template('check.html',error=error,name=name)
 
         elif len(result[0].candidates) > 0:
             # 各resultグループの名前を取得するための処理
@@ -90,7 +100,7 @@ def check_answer():
             
         else:
             error = '一致したグループとの詳細情報を得ることができませんでした。'
-            return render_template('check.html',error=error)
+            return render_template('check.html',error=error,name=name)
         
 
 
